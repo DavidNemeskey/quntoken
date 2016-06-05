@@ -51,10 +51,10 @@ CXXFLAGS_GTEST =	$(CXXFLAGS) \
 
 # a quex kapcsoloi
 QUEXFLAGS =	-i $^ \
-			-b 4 \
-			--bet wchar_t \
+			-b 1 \
 			--odir $(TMP_DIR)/ \
-			--iconv
+			--codec utf8
+			# --iconv
 			# --icu
 # Megj1: icu konverter használata:
 #   - telepíteni kell a libicu52-t és a libicu-dev-et
