@@ -17,17 +17,17 @@ body {
 
     // Az xml tag-ek helyett spec. karakterek vannak a későbbi feldolgozást
     // megkönnyítendő.
-    const std::wstring SNT_OPEN_CPP     = L"🀰";
-    const std::wstring SNT_CLOSE_CPP    = L"🀱";
-    const std::wstring WS_OPEN_CPP      = L"🀲";
-    const std::wstring WS_CLOSE_CPP     = L"🀳";
-    const std::wstring WORD_OPEN_CPP      = L"🀴";
-    const std::wstring WORD_CLOSE_CPP     = L"🀵";
-    const std::wstring PUNCT_OPEN_CPP      = L"🀶";
-    const std::wstring PUNCT_CLOSE_CPP     = L"🀷";
+    const std::basic_string<uint8_t> SNT_OPEN_CPP     = (const uint8_t*)"🀰";
+    const std::basic_string<uint8_t> SNT_CLOSE_CPP    = (const uint8_t*)"🀱";
+    const std::basic_string<uint8_t> WS_OPEN_CPP      = (const uint8_t*)"🀲";
+    const std::basic_string<uint8_t> WS_CLOSE_CPP     = (const uint8_t*)"🀳";
+    const std::basic_string<uint8_t> WORD_OPEN_CPP    = (const uint8_t*)"🀴";
+    const std::basic_string<uint8_t> WORD_CLOSE_CPP   = (const uint8_t*)"🀵";
+    const std::basic_string<uint8_t> PUNCT_OPEN_CPP   = (const uint8_t*)"🀶";
+    const std::basic_string<uint8_t> PUNCT_CLOSE_CPP  = (const uint8_t*)"🀷";
 
     // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
-    const std::wstring REPLACEMENTCHAR_CPP = L"�";
+    const std::basic_string<uint8_t> REPLACEMENTCHAR_CPP = (const uint8_t*)"�";
 
 
     // FUGGVENYEK
@@ -38,8 +38,8 @@ body {
     //      akkor az felulirja az ittenit, igy az sntcorr.qx-ben nem lenne
     //      hasznalhato a tobbi, itt deklaralt dolog sem. Szoval itt van, a
     //      tobbi modul meg nem hasznalja es kesz.
-    std::wstring snt_boundary_correction(const wchar_t* lexeme) {
-        std::wstring text(lexeme);
+    std::basic_string<uint8_t> snt_boundary_correction(const uint8_t* lexeme) {
+        std::basic_string<uint8_t> text(lexeme);
         delete_str(text, SNT_OPEN_CPP);
         delete_str(text, SNT_CLOSE_CPP);
         delete_str(text, WS_OPEN_CPP);
@@ -48,9 +48,9 @@ body {
     }
 
     // str osszes elofordulasanak torlese text-bol
-    void delete_str(std::wstring &text, const std::wstring &str) {
+    void delete_str(std::basic_string<uint8_t> &text, const std::basic_string<uint8_t> &str) {
         for(size_t pos = text.find(str);
-            pos != std::wstring::npos;
+            pos != std::basic_string<uint8_t>::npos;
             pos = text.find(str, pos)) {
 
             text.erase(pos, str.length());
@@ -60,12 +60,12 @@ body {
     // functions for TOKEN module:
     //
     // dot at the end of the senetence belong to sentence, not to word
-    void sntend_corrig(std::wstring &LEX) {
+    void sntend_corrig(std::basic_string<uint8_t> &LEX) {
         if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
             // delete dot and sentence close tag from the end of the Lexeme
             LEX.erase(LEX.end()-2, LEX.end());
             LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-                  self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+                  self.PUNCT_OPEN_CPP + (const uint8_t*)"." + self.PUNCT_CLOSE_CPP +
                   self.SNT_CLOSE_CPP;
         }
         else {
@@ -74,13 +74,13 @@ body {
         return;
     }
     // correct snt ending, more dots in LEX separate tokens
-    void basic_token_corrig(std::wstring &LEX) {
-        std::wstring res;
-        for(size_t pos = LEX.find(L".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find(L"..", pos+1)) {
+    void basic_token_corrig(std::basic_string<uint8_t> &LEX) {
+        std::basic_string<uint8_t> res;
+        for(size_t pos = LEX.find((const uint8_t*)".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find((const uint8_t*)"..", pos+1)) {
             // res-t bovitjuk nem-pontokkal ...
             // ... LEX belsejeben
-            if(pos != std::string::npos) {
-                res.append(pos!=prev_pos ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.WORD_CLOSE_CPP : L"");
+            if(pos != std::basic_string<uint8_t>::npos) {
+                res.append(pos!=prev_pos ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.WORD_CLOSE_CPP : (const uint8_t*)"");
             }
             // ... LEX vegen
             else {
@@ -88,11 +88,11 @@ body {
                 if (LEX.back() == self.SNT_CLOSE_CPP.front()) {
                     // res vegen pontok voltak, mar csak a mondatzarot kell hozzacsapni
                     if(res.back() == self.PUNCT_CLOSE_CPP.front()) {
-                        res.append((prev_pos != LEX.size()-1 ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP : L"") + self.SNT_CLOSE_CPP);
+                        res.append((prev_pos != LEX.size()-1 ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + (const uint8_t*)"." + self.PUNCT_CLOSE_CPP : (const uint8_t*)"") + self.SNT_CLOSE_CPP);
                     }
                     // res vegen csak egy pont volt, a pont nem a szohoz tartozik, hanem kulon punktuacio
                     else {
-                        res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP);
+                        res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + (const uint8_t*)"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP);
                     }
                 }
                 // nem kell korrigalni
@@ -103,9 +103,9 @@ body {
             }
             // res-t bovitjuk pontokkal ...
             prev_pos = pos;
-            pos = LEX.find_first_not_of(L".", pos+2);
+            pos = LEX.find_first_not_of((const uint8_t*)".", pos+2);
             // ... LEX belsejeben
-            if(pos != std::string::npos) {
+            if(pos != std::basic_string<uint8_t>::npos) {
                 res.append(self.PUNCT_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.PUNCT_CLOSE_CPP);
             }
             // ... LEX vegen
@@ -118,7 +118,7 @@ body {
         return;
     }
     // "-e" at the end of word is treated as a new word
-    void particula_token_corrig(std::wstring &LEX) {
+    void particula_token_corrig(std::basic_string<uint8_t> &LEX) {
         self.basic_token_corrig(LEX);
         size_t pos = LEX.find_last_of(self.WORD_CLOSE_CPP);
         LEX.insert(pos-2, self.WORD_CLOSE_CPP+self.WORD_OPEN_CPP);
