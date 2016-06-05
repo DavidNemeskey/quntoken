@@ -15,7 +15,7 @@ mode PREPROC {
         std::cerr << "invalid character ("
                   << self.line_number() << ","
                   << self.column_number() << "): "
-                  << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
+                  << Lexeme << std::endl;
         self_send1(PREP_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
     }
     on_failure      => PREP_TERMINATION;
