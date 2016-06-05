@@ -50,7 +50,7 @@ void QxModule::module(QUEX_TYPE_TOKEN_ID termination) {
     for(lexer.receive(&token_p);
         token_p->type_id() != termination;
         lexer.receive(&token_p)) {
-        output << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text());
+        output << token_p->get_text().c_str();
     }
 }
 
@@ -61,6 +61,4 @@ void QxModule::module(QUEX_TYPE_TOKEN_ID termination) {
 /* 3.a. nyers token: QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text()) */
 /* 3.b. nyers token: token_p->get_text().c_str() */
 /* (a pretty iszképeli a \n-, \r-, \t-ket, mast nem valtoztat) */
-// TODO: wstring- / wstringstream-re atirni, hogy a kevesebb konverzioval
-// idot nyerjunk! Eleg lenne a kiiras elott konvertalni.
 
