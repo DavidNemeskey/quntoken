@@ -115,8 +115,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // whitespaces (in sentence)
     {WSPACE}+ {
-        /* std::wcout << L"ws! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
         self_send1(TOKEN_WS, LEX.c_str());
     }
@@ -125,15 +124,13 @@ mode PROGRAM : COMMON {
     // punctuations
     // single punctuations
     {PUNCT}|{SYMBOL} {
-        /* std::wcout << L"single punct! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
     // more dots
     "."{2,} {
-        /* std::wcout << L"dots! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
@@ -141,8 +138,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // path
     {PATH}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"path! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -150,8 +146,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // filename with wildcard characters
     {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"filename! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -159,8 +154,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // joinable punctuations
     {PUNCT_JOINABLE_CHAR}+ {
-        /* std::wcout << L"joinable punct! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
@@ -168,8 +162,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // smiley
     {SMILEY} {
-        /* std::wcout << L"smiley! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
@@ -185,15 +178,13 @@ mode PROGRAM : COMMON {
     //   par(en)thesis, but not (parenthesis)
     // verision for words with "-e"
     ((({WORDS_WITH_DOTS}?{WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}?{WORD_IN_PAR}))"-e"("."+)?{SNT_CLOSE_QX}? {
-        /* std::wcout << L"basic with -e! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.particula_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
     // version for other cases:
     ((({WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
-        /* std::wcout << L"basic! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.basic_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -201,8 +192,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // url
     {URL}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"url! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -214,8 +204,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // windows network services (?)
     [a-zA-Z]+"$"{WORD_WITHOUT_DOTS}?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"wns! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -223,8 +212,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // uppercase letters with '&'
     \G{Uppercase_Letter}+"&"\G{Uppercase_Letter}+("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"uppercase with &! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -232,8 +220,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // words with apostroph
     \G{Letter}+"'"\G{Letter}+ {
-        /* std::wcout << L"words with apostroph! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -241,8 +228,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
     {NUM_WITH_PUNCT}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"nums with punct! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -250,8 +236,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with spaces
     {NUM_WITH_SPACE}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"nums with spaces! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -259,8 +244,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ID
     {ID}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"id! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
+        std::basic_string<uint8_t> LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
@@ -269,9 +253,8 @@ mode PROGRAM : COMMON {
     // enumeration with parenthesis
     // note: roman_number matches empty string!
     {ENUMERATION} {
-        /* std::wcout << L"enumeration! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
-        if(LEX.front() != L')'){
+        std::basic_string<uint8_t> LEX(Lexeme);
+        if(LEX.front() != (const uint8_t)')'){
             LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
             self_send1(TOKEN_TOKEN, LEX.c_str());
         }
@@ -288,10 +271,10 @@ mode PROGRAM : COMMON {
 mode COMMON : <inheritable: only> {
     /* {NEWLINE}       => TOKEN_NEWLINE(Lexeme); */
     on_failure      {
-        std::wcerr << L"TOKEN-ERROR ("
-                   << self.line_number() << L", "
-                   << self.column_number() << L"): "
-                   << Lexeme << std::endl;
+        std::cerr << "TOKEN-ERROR ("
+                  << self.line_number() << ", "
+                  << self.column_number() << "): "
+                  << Lexeme << std::endl;
         self_send1(TOKEN_ANYCHAR, Lexeme);
     }
     <<EOF>>         => TOKEN_TERMINATION;

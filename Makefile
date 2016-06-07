@@ -39,11 +39,11 @@ CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-I$(QUEX_DIR) \
 				-I./ \
 				-DQUEX_OPTION_ASSERTS_DISABLED \
-				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-				-DENCODING_NAME='"UTF8"' \
 				-DQUEX_OPTION_MULTI \
-				-static \
-				-liconv
+				# -DQUEX_OPTION_CONVERTER_ICONV \
+				# -liconv
+				# -DENCODING_NAME='"UTF8"' \
+				# -static \
 
 # g++ kapcsoloi gtest-es fajlokhoz
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
