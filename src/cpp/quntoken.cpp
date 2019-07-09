@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
     QxQueue q(modules);
-    q.run(&inp_sstream);
+    q.run(inp_sstream);
 
     std::cout << std::endl;
 

@@ -21,104 +21,88 @@
 
 // ctor:
 QxQueue::QxQueue(TYPE_VECTOR types) :
-    types(types),
-    streams(STREAM_VECTOR(types.size()+1, nullptr))
-{
-    return;
+        types(types),
+        istreams(ISTREAM_VECTOR(types.size(), nullptr)),
+        ostreams(OSTREAM_VECTOR(types.size(), nullptr)) {
+    create_streams();
 }
 
 
 // dtor:
-QxQueue::~QxQueue()
-{
+QxQueue::~QxQueue() {
     delete_streams();
-    return;
 }
 
 
 // private functions:
-void QxQueue::create_streams()
-{
-    for(int i=1; i<(external_last ? streams.size()-1 : streams.size()); ++i)
-    {
-        streams[i] = new std::stringstream;
+void QxQueue::create_streams() {
+    for (size_t i = 0; i < ostreams.size() - 1; ++i) {
+        std::stringstream* ss = new std::stringstream;
+        istreams[i + 1] = ss;
+        ostreams[i] = ss;
     }
 }
 
 
-void QxQueue::delete_streams()
-{
-    for(int i=1; i<(external_last ? streams.size()-1 : streams.size()); ++i)
-    {
-        delete streams[i];
-        streams[i] = nullptr;
+void QxQueue::delete_streams() {
+    for (size_t i = 0; i < ostreams.size() - 1; ++i) {
+        delete ostreams[i];
+        istreams[i + 1] = nullptr;
+        ostreams[i] = nullptr;
     }
 }
 
 
 // auxiliary function, not a QxQueue member
 template <class LEXER, class TOKEN, QUEX_TYPE_TOKEN_ID termination>
-void module(std::stringstream* inp, std::stringstream* out)
-{
+void module(std::istream* inp, std::ostream* out) {
     TOKEN* token_p = 0x0;
     LEXER lexer(inp, "UTF8");
-    for(lexer.receive(&token_p);
-        token_p->type_id() != termination;
-        lexer.receive(&token_p)) {
+    for (lexer.receive(&token_p);
+         token_p->type_id() != termination;
+         lexer.receive(&token_p)) {
         *out << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text());
     }
 }
 
 
 // public functions:
-void QxQueue::run(std::stringstream* inp, std::stringstream* out /*=nullptr*/)
-{
-    external_last = out ? true : false; // ha meg van adva out, akkor azt nem szabad torolni
-    delete_streams();
-    streams.front() = inp;
-    streams.back() = out;
-    create_streams();
+void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
+    // TODO: the streams should be ephemeral or only the content should be deleted
+    istreams.front() = &inp;
+    ostreams.back() = &out;
 
-    for(int i=0; i<types.size(); ++i)
-    {
-        switch(types[i])
-        {
+    for (int i = 0; i < types.size(); ++i) {
+        switch(types[i]) {
             case PREPROC:
-                module<preproc::Lexer, preproc::Token, preproc_TERMINATION>(streams[i], streams[i+1]);
+                module<preproc::Lexer, preproc::Token, preproc_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case HYPHEN:
-                module<hyphen::Lexer, hyphen::Token, hyphen_TERMINATION>(streams[i], streams[i+1]);
+                module<hyphen::Lexer, hyphen::Token, hyphen_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case SNT:
-                module<snt::Lexer, snt::Token, snt_TERMINATION>(streams[i], streams[i+1]);
+                module<snt::Lexer, snt::Token, snt_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case SNTCORR:
-                module<sntcorr::Lexer, sntcorr::Token, sntcorr_TERMINATION>(streams[i], streams[i+1]);
+                module<sntcorr::Lexer, sntcorr::Token, sntcorr_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case TOKEN:
-                module<token::Lexer, token::Token, token_TERMINATION>(streams[i], streams[i+1]);
+                module<token::Lexer, token::Token, token_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case CONVXML:
-                module<convxml::Lexer, convxml::Token, convxml_TERMINATION>(streams[i], streams[i+1]);
+                module<convxml::Lexer, convxml::Token, convxml_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case CONVJSON:
-                module<convjson::Lexer, convjson::Token, convjson_TERMINATION>(streams[i], streams[i+1]);
+                module<convjson::Lexer, convjson::Token, convjson_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             case CONVVERT:
-                module<convvert::Lexer, convvert::Token, convvert_TERMINATION>(streams[i], streams[i+1]);
+                module<convvert::Lexer, convvert::Token, convvert_TERMINATION>(istreams[i], ostreams[i]);
                 break;
             default:
                 std::cerr << "Wrong module type!" << std::endl;
                 exit(1);
         }
     }
-
-    if(not external_last) // print to stdout
-    {
-        std::cout << streams.back()->str();
-    }
-
-    return;
 }
 
 
