@@ -16,6 +16,7 @@ Class interface to the quntoken library, a sentence splitter and tokenizer for
 hungarian texts in utf-8.
 """
 class QunToken(object):
+    # Python 2 and 3 compatibility (without future, past, six, etc.)
     str_class = str if sys.version_info.major >= 3 else unicode
 
     def __init__(self, format, mode, hyphen):
