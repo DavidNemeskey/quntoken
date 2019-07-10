@@ -13,6 +13,7 @@ NAME			:= quntoken
 QXSUFFIX		:= _Lexer
 CLASS			:= qxqueue quntoken
 MAIN                    := main
+PY_WRAPPER		:= quntoken_c
 
 
 # DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,6 +22,7 @@ LIB				:= lib
 TMP				:= tmp
 SRC				:= src
 SRC_CPP			:= $(SRC)/cpp
+SRC_PYTHON		:= $(SRC)/python
 SRC_SCRIPT		:= $(SRC)/scripts
 QUEX			:= quex
 GTEST			:= googletest/googletest
@@ -33,9 +35,12 @@ PROGOBJ	    	:= $(TMP)/$(MAIN).o
 TESTBIN			:= $(BIN)/test_$(NAME)
 TESTOBJ			:= $(TESTBIN:$(BIN)/%=$(TMP)/%.o)
 TESTCPP			:= $(TESTOBJ:%.o=%.cpp)
+PYMODULE		:= $(LIB)/$(NAME).py
+PYLIB			:= $(LIB)/$(NAME)_py.so
+PYOBJ			:= $(PY_WRAPPER:%=$(TMP)/%.o)
 LIBRARY			:= $(LIB)/lib$(NAME).a
 CLASSOBJS		:= $(CLASS:%=$(TMP)/%.o)
-CPPOBJS			:= $(PROGOBJ) $(CLASSOBJS)
+CPPOBJS			:= $(PROGOBJ) $(CLASSOBJS) $(PYOBJ)
 QXOBJS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).o)
 QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
 ABBRLEXER		:= $(TMP)/$(basename $(notdir $(ABBREVIATIONS))).qx
@@ -62,6 +67,7 @@ CPPFLAGS +=	-isystem $(GTEST)/include
 
 # g++ kapcsoloi altalaban
 CXXFLAGS += \
+	-fPIC \
 	-Wall \
 	-Wextra \
 	-Wconversion \
@@ -90,7 +96,7 @@ CXXFLAGS_GTEST	= $(CXXFLAGS) -pthread
 
 # TARGETS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-all: common $(PROGBIN) $(TESTBIN) test
+all: common $(PROGBIN) $(TESTBIN) test $(PYLIB) $(PYMODULE)
 
 .PHONY: all
 
@@ -122,6 +128,14 @@ $(TESTOBJ): $(TESTCPP) $(SRC_CPP)/*.h $(QXCPPS)
 
 $(TESTCPP): $(SRC_SCRIPT)/test.tmpl2cpp.py $(TESTCPP:$(TMP)%=$(SRC_CPP)%) $(TEST_FILES)
 	./$< -t $(word 2, $^) -d $(TEST_FILES) -o $@
+
+
+$(PYLIB): $(PYOBJ) $(LIBRARY)
+	$(CXX) $< -L$(LIB) -lquntoken -shared -o $(PYLIB)
+
+
+$(PYMODULE): $(PYMODULE:$(LIB)/%=$(SRC_PYTHON)/%)
+	cp -f $< $@
 
 
 $(LIBRARY): $(QXOBJS) $(CLASSOBJS)
@@ -157,6 +171,7 @@ $(TMP)/gtest.a : $(TMP)/gtest-all.o
 clean:
 	@rm -fv  $(PROGBIN)
 	@rm -fv  $(TESTBIN)
+	@rm -fv  $(PYLIB)
 	@rm -rfv $(LIBRARY)
 	@rm -rfv $(TMP)/*
 

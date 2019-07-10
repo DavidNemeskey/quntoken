@@ -17,6 +17,16 @@
  */
 class QunToken {
   public:
+    /**
+     * Constructor.
+     *
+     * \param format: the output format.
+     *                One of \c xml, \c json, \c vert and \c raw.
+     * \param mode: the modus operandi. One of \c sentence and \c token. Both
+     *              perform sentence splitting; the latter tokenizes the text
+     *              as well.
+     * \param hyphen: whether to eliminate word breaks from the end of lines.
+     */
     QunToken(const std::string& format, const std::string& mode, bool hyphen);
 
     /** Tokenizes \c input and returns a string. */
@@ -34,7 +44,5 @@ class QunToken {
     /** Used by <tt>tokenize(const std::string&)</tt>. */
     std::stringstream outss;
 };
-
-QxQueue get_queue(const std::string& format, const std::string& mode, bool hyphen);
 
 #endif
