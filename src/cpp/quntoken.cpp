@@ -10,8 +10,8 @@ std::map<std::string, MODULE_TYPE> formats =
 }
 
 
-QxQueue get_queue(const std::string& format,
-                  const std::string& mode, bool hyphen) {
+QunToken::QunToken(const std::string& format,
+                   const std::string& mode, bool hyphen) {
     std::vector<MODULE_TYPE> modules = {PREPROC, SNT, SNTCORR, SNTCORR};
     if (mode == "token") {
         modules.push_back(TOKEN);
@@ -26,5 +26,12 @@ QxQueue get_queue(const std::string& format,
         throw std::invalid_argument(
             "Wrong format. Valid formats: xml, json, vert, raw.");
     }
-    return QxQueue(modules);
+    queue.reset(new QxQueue(modules));
+}
+
+std::string QunToken::tokenize(const std::string& input) {
+    inss.str(input);
+    outss.str("");
+    tokenize(inss, outss);
+    return outss.str();
 }

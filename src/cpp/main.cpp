@@ -80,9 +80,9 @@ int main(int argc, char** argv) {
     bool hyphen = hyphen_flag ? true : false;
 
     // queue
-    QxQueue q = get_queue(format, mode, hyphen);
+    QunToken qt(format, mode, hyphen);
     std::ifstream inp_fstream(input_file);
-    q.run(inp_fstream);
+    qt.tokenize(inp_fstream);
 
     std::cout << std::endl;
 
