@@ -6,6 +6,7 @@
 import contextlib
 import ctypes
 import os.path as op
+import sys
 
 lib = ctypes.cdll.LoadLibrary(
     op.join(op.dirname(op.abspath(__file__)), 'quntoken_py.so'))
@@ -15,6 +16,8 @@ Class interface to the quntoken library, a sentence splitter and tokenizer for
 hungarian texts in utf-8.
 """
 class QunToken(object):
+    str_class = str if sys.version_info.major >= 3 else unicode
+
     def __init__(self, format, mode, hyphen):
         """
         :param format: the output format.
@@ -36,8 +39,9 @@ class QunToken(object):
 
     def tokenize(self, input):
         """Tokenizes *input* and returns a string."""
-        return lib.QunToken_tokenize(
-            self.obj, input.encode('utf-8')).decode('utf-8')
+        if isinstance(input, QunToken.str_class):
+            input = input.encode('utf-8')
+        return lib.QunToken_tokenize(self.obj, input).decode('utf-8')
 
 
 def main():
