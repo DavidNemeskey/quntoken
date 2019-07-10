@@ -11,7 +11,8 @@ include $(CONFIG_FILE)
 # NAMES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 NAME			:= quntoken
 QXSUFFIX		:= _Lexer
-CLASS			:= qxqueue
+CLASS			:= qxqueue quntoken
+MAIN                    := main
 
 
 # DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +29,7 @@ GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
 
 # FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PROGBIN	    	:= $(BIN)/$(NAME)
-PROGOBJ	    	:= $(TMP)/$(NAME).o
+PROGOBJ	    	:= $(TMP)/$(MAIN).o
 TESTBIN			:= $(BIN)/test_$(NAME)
 TESTOBJ			:= $(TESTBIN:$(BIN)/%=$(TMP)/%.o)
 TESTCPP			:= $(TESTOBJ:%.o=%.cpp)
@@ -107,7 +108,7 @@ test: $(TESTBIN)
 .PHONY: test
 
 
-$(PROGBIN): $(TMP)/$(NAME).o $(LIBRARY)
+$(PROGBIN): $(PROGOBJ) $(LIBRARY)
 	$(CXX) $< -L$(LIB) -static-libstdc++ -static -lquntoken -o $@
 
 
