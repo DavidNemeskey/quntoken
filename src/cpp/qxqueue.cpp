@@ -53,6 +53,14 @@ void QxQueue::delete_streams() {
 }
 
 
+void QxQueue::clear_streams() {
+    for (size_t i = 0; i < ostreams.size() - 1; ++i) {
+        dynamic_cast<std::stringstream*>(ostreams[i])->str("");
+        ostreams[i]->clear();
+    }
+}
+
+
 // auxiliary function, not a QxQueue member
 template <class LEXER, class TOKEN, QUEX_TYPE_TOKEN_ID termination>
 void module(std::istream* inp, std::ostream* out) {
@@ -68,7 +76,7 @@ void module(std::istream* inp, std::ostream* out) {
 
 // public functions:
 void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
-    // TODO: the streams should be ephemeral or only the content should be deleted
+    clear_streams();
     istreams.front() = &inp;
     ostreams.back() = &out;
 
@@ -103,6 +111,9 @@ void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
                 exit(1);
         }
     }
+
+    istreams.front() = nullptr;
+    ostreams.back() = nullptr;
 }
 
 

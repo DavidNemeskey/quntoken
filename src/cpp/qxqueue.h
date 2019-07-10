@@ -62,13 +62,14 @@ private:
      * results.
      */
     void delete_streams();
+    /** Clears the content and state of the results streams. */
+    void clear_streams();
 
 // public functions:
 public:
     void run(std::istream& inp, std::ostream& out=std::cout);
 
 };
-
 
 
 #endif // QX_MODULE_QUEUE_H
