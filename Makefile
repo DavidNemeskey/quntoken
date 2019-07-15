@@ -131,7 +131,7 @@ $(TESTCPP): $(SRC_SCRIPT)/test.tmpl2cpp.py $(TESTCPP:$(TMP)%=$(SRC_CPP)%) $(TEST
 
 
 $(PYLIB): $(PYOBJ) $(LIBRARY)
-	$(CXX) $< -L$(LIB) -lquntoken -shared -o $(PYLIB)
+	$(CXX) $< -L$(LIB) -static-libstdc++ -lquntoken -shared -o $(PYLIB)
 
 
 $(PYMODULE): $(PYMODULE:$(LIB)/%=$(SRC_PYTHON)/%)
