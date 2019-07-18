@@ -28,7 +28,7 @@
 #include "convjson_Lexer"
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
-#include "convvert_Lexer"
+#include "convtsv_Lexer"
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 
@@ -79,7 +79,7 @@ void QxQueue::clear_streams() {
 }
 
 #define MODULES (preproc) (hyphen) (snt) (sntcorr) (token) \
-                (convxml) (convjson) (convvert)
+                (convxml) (convjson) (convtsv)
 
 #define MODULE_NAMESPACE(r, data, elem) \
 namespace elem { \
@@ -134,7 +134,7 @@ void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
                 convjson::module(istreams[i], ostreams[i]);
                 break;
             case CONVVERT:
-                convvert::module(istreams[i], ostreams[i]);
+                convtsv::module(istreams[i], ostreams[i]);
                 break;
             default:
                 std::cerr << "Wrong module type!" << std::endl;

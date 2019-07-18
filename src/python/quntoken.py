@@ -22,7 +22,7 @@ class QunToken(object):
     def __init__(self, format, mode, hyphen):
         """
         :param format: the output format.
-                       One of ``xml``, ``json``, ``vert`` and ``raw``.
+                       One of ``xml``, ``json``, ``tsv`` and ``raw``.
         :param mode: the modus operandi. One of ``sentence`` and ``token``. Both
                      perform sentence splitting; the latter tokenizes the text
                      as well.
@@ -36,7 +36,7 @@ class QunToken(object):
             format.encode('utf-8'), mode.encode('utf-8'), hyphen)
         if not self.obj:
             raise ValueError('Wrong format: {}. '.format(format) +
-                             'Valid formats: xml, json, vert, raw.')
+                             'Valid formats: xml, json, tsv, raw.')
 
     def tokenize(self, input):
         """Tokenizes *input* and returns a string."""
