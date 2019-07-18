@@ -20,7 +20,7 @@ DEFINITIONS		= definitions.qx
 
 # TESTFILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MYTEST_DIR = test
-TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
+TEST_FILES = $(MYTEST_DIR)/test_default_preproc_invalid.txt \
              $(MYTEST_DIR)/test_default_hyphen_all.txt \
              $(MYTEST_DIR)/test_default_snt_boundary.txt \
              $(MYTEST_DIR)/test_default_snt_newline.txt  \
