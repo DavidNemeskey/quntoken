@@ -18,7 +18,7 @@ const std::string HELP_STR = "Usage:\n"
                              "\t-f FORMAT\tDefine output format. Valid formats: xml, json, tsv and raw. Default format: tsv.\n"
                              "\t-V\t\tDisplay version number and exit.\n"
                              "\t-h\t\tDisplay this help and exit";
-const std::string VERSION  = "quntoken 1.2.0";
+const std::string VERSION  = "quntoken 1.3.0";
 
 
 int main(int argc, char** argv) {
