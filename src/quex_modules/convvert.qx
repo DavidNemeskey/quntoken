@@ -1,33 +1,30 @@
-token
-{
-    TAG;
+token {
     ANYCHAR;
     FAILURE;
 }
 
 
-mode CONVERTER
-{
-    // Az alap karakterosztalyba tartozo nem whitespace karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {WSPACE}) :]+ => convvert_ANYCHAR(Lexeme);
+mode PROGRAM {
+    // base charactars without wspaces
+    {NONWS}+ =>         convvert_ANYCHAR(Lexeme);
 
-    // A WS karaktereket elnyeljuk.
-    {WSPACE}+      => convvert_ANYCHAR(text=L"");
+    // relevant tags
+    {SNT_CLOSE_QX}      {self_send1(convvert_ANYCHAR, L"\n"); }
+    {PUNCT_CLOSE_QX}    {self_send1(convvert_ANYCHAR, L"\n"); }
+    {WORD_CLOSE_QX}     {self_send1(convvert_ANYCHAR, L"\n"); }
 
-    // A nyito tag-eket elnyeljuk, a zaroknal sortorunk.
-    {SNT_OPEN_QX}     => convvert_TAG(text=L"");
-    {SNT_CLOSE_QX}    => convvert_TAG(text=L"\n");
-    {WS_OPEN_QX}      => convvert_TAG(text=L"");
-    {WS_CLOSE_QX}     => convvert_TAG(text=L"");
-    {WORD_OPEN_QX}    => convvert_TAG(text=L"");
-    {WORD_CLOSE_QX}   => convvert_TAG(text=L"\n");
-    {PUNCT_OPEN_QX}   => convvert_TAG(text=L"");
-    {PUNCT_CLOSE_QX}  => convvert_TAG(text=L"\n");
+    // white spaces
+    {TAGGED_WS_SEQ}+    {}
+    {WSPACE}+           {}
 
-    // hiba
-    on_failure          => convvert_FAILURE(Lexeme);
-    // stream vege
-    on_end_of_stream    => convvert_TERMINATION;
+    // other tags
+    {SNT_OPEN_QX}       {}
+    {WS_OPEN_QX}        {}
+    {WS_CLOSE_QX}       {}
+    {WORD_OPEN_QX}      {}
+    {PUNCT_OPEN_QX}     {}
+
+    <<FAIL>>            => convvert_FAILURE(Lexeme);
+    <<EOF>>             => convvert_TERMINATION;
 }
-
 
