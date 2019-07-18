@@ -6,7 +6,7 @@
 
 namespace {
 std::map<std::string, MODULE_TYPE> formats =
-    {{"xml", CONVXML}, {"json", CONVJSON}, {"vert", CONVVERT}};
+    {{"xml", CONVXML}, {"json", CONVJSON}, {"tsv", CONVVERT}};
 }
 
 
@@ -24,7 +24,7 @@ QunToken::QunToken(const std::string& format,
             modules.push_back(formats.at(format));
     } catch (std::out_of_range) {
         throw std::invalid_argument(
-            "Wrong format. Valid formats: xml, json, vert, raw.");
+            "Wrong format. Valid formats: xml, json, tsv, raw.");
     }
     queue.reset(new QxQueue(modules));
 }
