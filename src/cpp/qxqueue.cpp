@@ -1,16 +1,36 @@
+#include <unistd.h>
 #include <string>
 #include <sstream>
+
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
 
 #include "qxqueue.h"
 
 #include "preproc_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "hyphen_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "snt_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "sntcorr_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "token_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "convxml_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "convjson_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include "convvert_Lexer"
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 
 #include <quex/code_base/multi.i>
 #include <quex/code_base/definitions>
@@ -58,18 +78,28 @@ void QxQueue::clear_streams() {
     }
 }
 
+#define MODULES (preproc) (hyphen) (snt) (sntcorr) (token) \
+                (convxml) (convjson) (convvert)
 
-// auxiliary function, not a QxQueue member
-template <class LEXER, class TOKEN, QUEX_TYPE_TOKEN_ID termination>
-void module(std::istream* inp, std::ostream* out) {
-    TOKEN* token_p = 0x0;
-    LEXER lexer(inp, "UTF8");
-    for (lexer.receive(&token_p);
-         token_p->type_id() != termination;
-         lexer.receive(&token_p)) {
-        *out << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text());
-    }
+#define MODULE_NAMESPACE(r, data, elem) \
+namespace elem { \
+void module(std::istream* inp, std::ostream* out) { \
+    Lexer_ByteLoader* loader = Lexer_ByteLoader_stream_new(inp); \
+    Lexer_Converter* converter = Lexer_Converter_IConv_new("UTF8", nullptr); \
+    Lexer* lexer = Lexer::from_ByteLoader(loader, converter); \
+\
+    typename Lexer::token_type* token_p = 0x0; \
+    for (lexer->receive(&token_p); \
+         token_p->type_id() != BOOST_PP_CAT(elem, _TERMINATION); \
+         lexer->receive(&token_p)) { \
+        *out << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text()); \
+    } \
+    delete lexer; \
+} \
 }
+
+
+BOOST_PP_SEQ_FOR_EACH(MODULE_NAMESPACE, _, MODULES)
 
 
 // public functions:
@@ -78,31 +108,33 @@ void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
     istreams.front() = &inp;
     ostreams.back() = &out;
 
+    preproc::Lexer_ByteLoader_stream_new(&inp);
+
     for (int i = 0; i < types.size(); ++i) {
         switch(types[i]) {
             case PREPROC:
-                module<preproc::Lexer, preproc::Token, preproc_TERMINATION>(istreams[i], ostreams[i]);
+                preproc::module(istreams[i], ostreams[i]);
                 break;
             case HYPHEN:
-                module<hyphen::Lexer, hyphen::Token, hyphen_TERMINATION>(istreams[i], ostreams[i]);
+                hyphen::module(istreams[i], ostreams[i]);
                 break;
             case SNT:
-                module<snt::Lexer, snt::Token, snt_TERMINATION>(istreams[i], ostreams[i]);
+                snt::module(istreams[i], ostreams[i]);
                 break;
             case SNTCORR:
-                module<sntcorr::Lexer, sntcorr::Token, sntcorr_TERMINATION>(istreams[i], ostreams[i]);
+                sntcorr::module(istreams[i], ostreams[i]);
                 break;
             case TOKEN:
-                module<token::Lexer, token::Token, token_TERMINATION>(istreams[i], ostreams[i]);
+                token::module(istreams[i], ostreams[i]);
                 break;
             case CONVXML:
-                module<convxml::Lexer, convxml::Token, convxml_TERMINATION>(istreams[i], ostreams[i]);
+                convxml::module(istreams[i], ostreams[i]);
                 break;
             case CONVJSON:
-                module<convjson::Lexer, convjson::Token, convjson_TERMINATION>(istreams[i], ostreams[i]);
+                convjson::module(istreams[i], ostreams[i]);
                 break;
             case CONVVERT:
-                module<convvert::Lexer, convvert::Token, convvert_TERMINATION>(istreams[i], ostreams[i]);
+                convvert::module(istreams[i], ostreams[i]);
                 break;
             default:
                 std::cerr << "Wrong module type!" << std::endl;
