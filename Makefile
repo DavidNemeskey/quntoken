@@ -25,6 +25,7 @@ SRC_CPP			:= $(SRC)/cpp
 SRC_PYTHON		:= $(SRC)/python
 SRC_SCRIPT		:= $(SRC)/scripts
 QUEX			:= quex
+BOOST_PREPROCESSOR	:= preprocessor
 GTEST			:= googletest/googletest
 GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
 
@@ -58,9 +59,9 @@ QXFLAGS = \
 	-o $(@:$(TMP)/%$(QXSUFFIX).cpp=%::$(subst _,,$(QXSUFFIX))) \
 	--token-id-prefix $(@:$(TMP)/%$(QXSUFFIX).cpp=%_) \
 	-b 4 \
-	--bet wchar_t \
-	--token-policy queue \
-	--iconv
+	--bet wchar_t
+	# --token-policy queue
+	# --iconv
 
 # c preprocesszor
 CPPFLAGS +=	-isystem $(GTEST)/include
@@ -70,7 +71,6 @@ CXXFLAGS += \
 	-fPIC \
 	-Wall \
 	-Wextra \
-	-Wconversion \
 	-pedantic \
 	-Werror -Wno-sign-compare \
 	-o $@ \
@@ -82,12 +82,15 @@ CXXFLAGS += \
 	-I./ \
 	-I$(TMP)/ \
 	-I$(QUEX) \
+	-I$(BOOST_PREPROCESSOR)/include \
 	-I$(SRC_CPP)
-	# -g
+	# -g -ggdb \
 	# -DENCODING_NAME='"UTF8"' \
 	# -DQUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE \
 	# -DQUEX_OPTION_POSIX \
 	# -liconv \
+	# -Wconversion \
+	# -DWITH_UTF8 \
 
 
 # g++ kapcsoloi gtest-es fajlokhoz
@@ -179,7 +182,7 @@ clean:
 
 
 # install and update requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: create_dirs install_gtest install_quex
+prereq: create_dirs install_gtest install_quex install_boost_preprocessor
 
 .PHONY: prereq
 
@@ -199,8 +202,8 @@ CMD_UPDATE_GTEST = cd $(GTEST) ; git pull
 # 	cd $(TMP) ; \
 # 	svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
 # 	mv trunk/ ../$(QUEX)
-QUEX_STABLE_VERSION = quex-0.65.4
-QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
+QUEX_STABLE_VERSION = quex-0.67.5
+QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.67/$(QUEX_STABLE_VERSION).tar.gz
 CMD_INSTALL_QUEX = \
 	rm -rvf $(QUEX) ; \
 	cd $(TMP) ; \
@@ -209,6 +212,9 @@ CMD_INSTALL_QUEX = \
 	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX) ; \
 	rm $(QUEX_STABLE_VERSION).tar.gz
 CMD_UPDATE_QUEX = cd $(QUEX) ; svn up
+# This is redundant if boost preprocessor (-dev?) is already installed,
+# but oh well.
+CMD_INSTALL_BOOST_PREPROCESSOR = git clone git@github.com:boostorg/preprocessor.git
 
 create_dirs:
 	mkdir -p $(BIN)
@@ -224,6 +230,11 @@ install_gtest:
 
 install_quex:
 	if ! [ -d $(QUEX) ] ; then $(CMD_INSTALL_QUEX) ; fi
+
+.PHONY: install_quex
+
+install_boost_preprocessor:
+	if ! [ -d $(BOOST_PREPROCESSOR) ] ; then $(CMD_INSTALL_BOOST_PREPROCESSOR) ; fi
 
 .PHONY: install_quex
 

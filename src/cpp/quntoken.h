@@ -21,7 +21,7 @@ class QunToken {
      * Constructor.
      *
      * \param format: the output format.
-     *                One of \c xml, \c json, \c vert and \c raw.
+     *                One of \c xml, \c json, \c tsv and \c raw.
      * \param mode: the modus operandi. One of \c sentence and \c token. Both
      *              perform sentence splitting; the latter tokenizes the text
      *              as well.

@@ -1,16 +1,37 @@
+#include <unistd.h>
 #include <string>
 #include <sstream>
 
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/facilities/empty.hpp>
+#include <boost/preprocessor/iteration/iterate.hpp>
+#include <boost/preprocessor/seq/elem.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_i.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 #include "qxqueue.h"
 
-#include "preproc_Lexer"
-#include "hyphen_Lexer"
-#include "snt_Lexer"
-#include "sntcorr_Lexer"
-#include "token_Lexer"
-#include "convxml_Lexer"
-#include "convjson_Lexer"
-#include "convvert_Lexer"
+/************* Macro stuff to generate lexer includes / namespaces ***********/
+
+// List of the modules for boost preprocessor to work with
+#define QX_MODULES (preproc) (hyphen) (snt) (sntcorr) (token) \
+                   (convxml) (convjson) (convtsv)
+// ... and the uppercase variants -- the PP cannot do capitalization 
+#define QX_MODULES_UPPER (PREPROC) (HYPHEN) (SNT) (SNTCORR) (TOKEN) \
+                         (CONVXML) (CONVJSON) (CONVTSV)
+
+#define QX_MODULE_CASE(r, data, index, elem) \
+            case BOOST_PP_SEQ_ELEM(index, QX_MODULES_UPPER): { \
+                BOOST_PP_CAT(elem, BOOST_PP_EMPTY())::module(istreams[i], ostreams[i]); \
+                break; \
+            }
+
+#define BOOST_PP_ITERATION_PARAMS_1 (3, (0, 7, "qxmodules.h"))
+
+#include BOOST_PP_ITERATE()
+
+/***************************** End of macro stuff ***************************/
 
 #include <quex/code_base/multi.i>
 #include <quex/code_base/definitions>
@@ -58,52 +79,17 @@ void QxQueue::clear_streams() {
     }
 }
 
-
-// auxiliary function, not a QxQueue member
-template <class LEXER, class TOKEN, QUEX_TYPE_TOKEN_ID termination>
-void module(std::istream* inp, std::ostream* out) {
-    TOKEN* token_p = 0x0;
-    LEXER lexer(inp, "UTF8");
-    for (lexer.receive(&token_p);
-         token_p->type_id() != termination;
-         lexer.receive(&token_p)) {
-        *out << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text());
-    }
-}
-
-
 // public functions:
 void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
     clear_streams();
     istreams.front() = &inp;
     ostreams.back() = &out;
 
+    preproc::Lexer_ByteLoader_stream_new(&inp);
+
     for (int i = 0; i < types.size(); ++i) {
         switch(types[i]) {
-            case PREPROC:
-                module<preproc::Lexer, preproc::Token, preproc_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case HYPHEN:
-                module<hyphen::Lexer, hyphen::Token, hyphen_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case SNT:
-                module<snt::Lexer, snt::Token, snt_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case SNTCORR:
-                module<sntcorr::Lexer, sntcorr::Token, sntcorr_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case TOKEN:
-                module<token::Lexer, token::Token, token_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case CONVXML:
-                module<convxml::Lexer, convxml::Token, convxml_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case CONVJSON:
-                module<convjson::Lexer, convjson::Token, convjson_TERMINATION>(istreams[i], ostreams[i]);
-                break;
-            case CONVVERT:
-                module<convvert::Lexer, convvert::Token, convvert_TERMINATION>(istreams[i], ostreams[i]);
-                break;
+            BOOST_PP_SEQ_FOR_EACH_I(QX_MODULE_CASE, _, QX_MODULES)
             default:
                 std::cerr << "Wrong module type!" << std::endl;
                 exit(1);

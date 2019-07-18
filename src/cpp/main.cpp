@@ -15,10 +15,10 @@ const std::string HELP_STR = "Usage:\n"
                              "Options:\n"
                              "\t-d\t\tRemove division of words at the end of the lines.\n"
                              "\t-m MODULE\tDefine target module. Valid targets: pre, snt, cor and tok. Default module: tok\n"
-                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json, vert and raw. Default format: vert.\n"
+                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json, tsv and raw. Default format: tsv.\n"
                              "\t-V\t\tDisplay version number and exit.\n"
                              "\t-h\t\tDisplay this help and exit";
-const std::string VERSION  = "quntoken 1.2.0";
+const std::string VERSION  = "quntoken 1.3.0";
 
 
 int main(int argc, char** argv) {
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
     // output format
     if (!format_flag) {
-        format = "vert";  // default
+        format = "tsv";  // default
     }
 
     // hyphen

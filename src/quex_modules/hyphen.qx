@@ -1,13 +1,11 @@
 token {
-    // alap karakterosztalyba tartozo karakterek nem ures sorozata
     LINE;
-    // egy db ismeretlen karakter helyettesitoje
     NEWLINES;
+    FAILURE;
 }
 
 
-define
-{
+define {
     LINE            [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+
     HYPHEN          {LINE}(\G{LC}|\G{Lm})\P{Block=Combining_Diacritical_Marks}*("-"{NEWLINECHAR}\G{LC}{NONWS}*)+
 }
@@ -18,13 +16,11 @@ mode PROGRAM {
         std::wstring LEX(self.hyphenation(Lexeme));
         self_send1(hyphen_LINE, LEX.c_str());
     }
+
     {NEWLINECHAR}+  => hyphen_NEWLINES(Lexeme);
     {LINE}          => hyphen_LINE(Lexeme);
 
-    on_failure          => hyphen_TERMINATION;
-    <<EOF>>             => hyphen_TERMINATION;
-    on_end_of_stream    => hyphen_TERMINATION;
+    <<FAIL>>        => hyphen_FAILURE(Lexeme);
+    <<EOF>>         => hyphen_TERMINATION;
 }
-
-// vim:set syntax=cpp:
 
