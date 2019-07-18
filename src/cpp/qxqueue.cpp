@@ -3,7 +3,10 @@
 #include <sstream>
 
 #include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_i.hpp>
+#include <boost/preprocessor/facilities/empty.hpp>
 
 #include "qxqueue.h"
 
@@ -78,8 +81,14 @@ void QxQueue::clear_streams() {
     }
 }
 
+/****************** Macro stuff ****************/
+
+// List of the modules for boost preprocessor to work with
 #define MODULES (preproc) (hyphen) (snt) (sntcorr) (token) \
                 (convxml) (convjson) (convtsv)
+
+#define MODULES_UPPER (PREPROC) (HYPHEN) (SNT) (SNTCORR) (TOKEN) \
+                      (CONVXML) (CONVJSON) (CONVTSV)
 
 #define MODULE_NAMESPACE(r, data, elem) \
 namespace elem { \
@@ -98,6 +107,14 @@ void module(std::istream* inp, std::ostream* out) { \
 } \
 }
 
+#define MODULE_CASE(r, data, index, elem) \
+            case BOOST_PP_SEQ_ELEM(index, MODULES_UPPER): { \
+                BOOST_PP_CAT(elem, BOOST_PP_EMPTY())::module(istreams[i], ostreams[i]); \
+                break; \
+            }
+
+/****************** End macro stuff ****************/
+
 
 BOOST_PP_SEQ_FOR_EACH(MODULE_NAMESPACE, _, MODULES)
 
@@ -112,30 +129,7 @@ void QxQueue::run(std::istream& inp, std::ostream& out /* =std::cout */) {
 
     for (int i = 0; i < types.size(); ++i) {
         switch(types[i]) {
-            case PREPROC:
-                preproc::module(istreams[i], ostreams[i]);
-                break;
-            case HYPHEN:
-                hyphen::module(istreams[i], ostreams[i]);
-                break;
-            case SNT:
-                snt::module(istreams[i], ostreams[i]);
-                break;
-            case SNTCORR:
-                sntcorr::module(istreams[i], ostreams[i]);
-                break;
-            case TOKEN:
-                token::module(istreams[i], ostreams[i]);
-                break;
-            case CONVXML:
-                convxml::module(istreams[i], ostreams[i]);
-                break;
-            case CONVJSON:
-                convjson::module(istreams[i], ostreams[i]);
-                break;
-            case CONVVERT:
-                convtsv::module(istreams[i], ostreams[i]);
-                break;
+            BOOST_PP_SEQ_FOR_EACH_I(MODULE_CASE, _, MODULES)
             default:
                 std::cerr << "Wrong module type!" << std::endl;
                 exit(1);

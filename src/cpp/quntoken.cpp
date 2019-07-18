@@ -6,7 +6,7 @@
 
 namespace {
 std::map<std::string, MODULE_TYPE> formats =
-    {{"xml", CONVXML}, {"json", CONVJSON}, {"tsv", CONVVERT}};
+    {{"xml", CONVXML}, {"json", CONVJSON}, {"tsv", CONVTSV}};
 }
 
 
