@@ -30,6 +30,7 @@ QunToken::QunToken(const std::string& format,
 }
 
 std::string QunToken::tokenize(const std::string& input) {
+    inss.clear();
     inss.str(input);
     outss.str("");
     tokenize(inss, outss);
